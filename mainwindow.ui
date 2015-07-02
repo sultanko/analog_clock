@@ -27,8 +27,10 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionOpen"/>
-    <addaction name="actionOpen_arrow"/>
+    <addaction name="actionOpen_clock"/>
+    <addaction name="actionOpen_hour_arrow"/>
+    <addaction name="actionOpen_minute_arrow"/>
+    <addaction name="actionOpen_second_arrow"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -41,14 +43,24 @@
    </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <action name="actionOpen">
+  <action name="actionOpen_clock">
    <property name="text">
     <string>Open clock</string>
    </property>
   </action>
-  <action name="actionOpen_arrow">
+  <action name="actionOpen_hour_arrow">
    <property name="text">
-    <string>Open arrow</string>
+    <string>Open hour arrow</string>
+   </property>
+  </action>
+  <action name="actionOpen_minute_arrow">
+   <property name="text">
+    <string>Open minute arrow</string>
+   </property>
+  </action>
+  <action name="actionOpen_second_arrow">
+   <property name="text">
+    <string>Open second arrow</string>
    </property>
   </action>
  </widget>
