@@ -7,11 +7,8 @@ int main(int argc, char *argv[])
 
     Q_INIT_RESOURCE(svgclock);
     MainWindow w;
-    qDebug() << "create Window" << "\n";
-    w.openClock();
-    qDebug() << "open Window" << "\n";
+    w.setClocks();
     w.show();
-    qDebug() << "show Window" << "\n";
 
     return a.exec();
 }

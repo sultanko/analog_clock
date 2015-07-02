@@ -12,16 +12,17 @@
 #include <qmath.h>
 
 ClockView::ClockView(QWidget *parent) :
-    QGraphicsView(parent)
+    QGraphicsView(parent),
+    m_svgClock(nullptr)
 {
     setScene(new QGraphicsScene(this));
     setTransformationAnchor(AnchorUnderMouse);
     setDragMode(ScrollHandDrag);
     setViewportUpdateMode(FullViewportUpdate);
 
-//    m_timer = new QTimer(this);
-//    m_timer->setInterval(1000);
-//    connect(m_timer, SIGNAL(timeout()), this, SLOT(update()));
+    m_timer = new QTimer(this);
+    m_timer->setInterval(1000);
+    connect(m_timer, SIGNAL(timeout()), this, SLOT(update()));
 
     // Prepare background check-board pattern
 //    QPixmap tilePixmap(64, 64);
@@ -36,14 +37,44 @@ ClockView::ClockView(QWidget *parent) :
     scene()->setSceneRect(0, 0, 400, 400);
 }
 
-void ClockView::openClock()
+void ClockView::openClock(const QFile &file)
 {
-    paint();
+    if (!file.exists())
+    {
+        return;
+    }
+    QGraphicsScene* s = scene();
+    if (m_svgClock != nullptr)
+    {
+        s->removeItem(m_svgClock);
+    }
+    m_svgClock = new QGraphicsSvgItem(file.fileName());
+    m_svgClock->setZValue(0);
+    qreal clockScale = s->sceneRect().height() / m_svgClock->boundingRect().height();
+    m_svgClock->setScale(clockScale);
+    s->addItem(m_svgClock);
+    redraw();
+}
+
+void ClockView::openArrow(ClockView::ArrowType arrowType, const QFile &file)
+{
+    if (!file.exists())
+    {
+        return;
+    }
+    QGraphicsSvgItem* arrow = new QGraphicsSvgItem(file.fileName());
+    if (m_arrows.contains(arrowType))
+    {
+        scene()->removeItem(m_arrows[arrowType]);
+    }
+    m_arrows.insert(arrowType, arrow);
+    scene()->addItem(arrow);
+    rotateArrow(arrowType);
 }
 
 void ClockView::paintEvent(QPaintEvent *event)
 {
-//    openClock();
+    redraw();
     QGraphicsView::paintEvent(event);
 }
 
@@ -54,40 +85,43 @@ void ClockView::wheelEvent(QWheelEvent *event)
     event->accept();
 }
 
-void ClockView::paint()
+void ClockView::rotateArrow(const ClockView::ArrowType &arrowType)
 {
-    qDebug() << "open file" << "\n";
-    QFile aclock(":/files/clock.svg");
-    QGraphicsScene* s = scene();
-    s->clear();
-    resetTransform();
-    m_svgClock = new QGraphicsSvgItem(aclock.fileName());
-    qDebug() << "opened file" << "\n";
-    m_svgClock->setZValue(0);
-    qDebug() << "Clock: " << m_svgClock->boundingRect().size() << "\n";
-    qreal clockScale = s->sceneRect().height() / m_svgClock->boundingRect().height();
-    m_svgClock->setScale(clockScale);
-    s->addItem(m_svgClock);
-
-    m_arrow = new QGraphicsSvgItem(QFile(":/files/arrow.svg").fileName());
-    m_arrow->setZValue(1);
-
+    QGraphicsItem* arrow = m_arrows.value(arrowType, nullptr);
+    if (arrow == nullptr)
+    {
+        return;
+    }
     QTime currentTime = QTime::currentTime();
-    qreal rotationAngle = 6 * currentTime.minute();
+    qreal rotationAngle;
+    switch (arrowType) {
+    case Hour:
+        rotationAngle = 30 * currentTime.hour() + 0.5 * currentTime.minute();
+        break;
+    case Minute:
+        rotationAngle = 6 * currentTime.minute() + 0.1 * currentTime.second();
+        break;
+    case Second:
+        rotationAngle = 6 * currentTime.second();
+        break;
+    }
+    QGraphicsScene* s = scene();
     qreal radRotation = qDegreesToRadians(rotationAngle);
     QTransform rotateMatrix(qCos(radRotation), qSin(radRotation), -qSin(radRotation), qCos(radRotation), 0, 0);
-    QPoint shift = rotateMatrix.map(QPoint(m_arrow->boundingRect().width() / 2.0, m_arrow->boundingRect().height()));
-    m_arrow->setPos(s->sceneRect().center().x() - shift.x(), s->sceneRect().center().y() - shift.y());
-    m_arrow->setRotation(rotationAngle);
-    s->addItem(m_arrow);
-//    QGraphicsRectItem* m_outlineItem = new QGraphicsRectItem(m_arrow->boundingRect());
-//    QPen outline(Qt::black, 2, Qt::DashLine);
-//    outline.setCosmetic(true);
-//    m_outlineItem->setPen(outline);
-//    m_outlineItem->setBrush(Qt::NoBrush);
-//    m_outlineItem->setZValue(1);
-//    m_outlineItem->setPos(s->sceneRect().center().x() + posX, s->sceneRect().center().y() + posY);
-////    m_outlineItem->setTransformOriginPoint(m_outlineItem->scenePos());
-//    m_outlineItem->setRotation(rotationAngle);
-//    s->addItem(m_outlineItem);
+    QPoint shift = rotateMatrix.map(QPoint(arrow->boundingRect().width() / 2.0, arrow->boundingRect().height()));
+    arrow->setPos(s->sceneRect().center().x() - shift.x(), s->sceneRect().center().y() - shift.y());
+    arrow->setRotation(rotationAngle);
+    arrow->setZValue(arrowType);
+    qDebug() << "this" << "\n";
+
+}
+
+void ClockView::redraw()
+{
+    QGraphicsScene* s = scene();
+    resetTransform();
+    for (auto it = m_arrows.begin(); it != m_arrows.end(); ++it)
+    {
+        rotateArrow(it.key());
+    }
 }

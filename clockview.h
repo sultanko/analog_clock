@@ -2,16 +2,20 @@
 #define CLOCKVIEW_H
 
 #include <QGraphicsView>
+#include <QHash>
 
 class QTimer;
+class QFile;
 
 class ClockView : public QGraphicsView
 {
     Q_OBJECT
 public:
+    enum ArrowType { Hour = 1, Minute = 2, Second = 3};
     explicit ClockView(QWidget *parent = 0);
 
-    void openClock();
+    void openClock(const QFile& file);
+    void openArrow(ArrowType arrowType, const QFile& file);
 
 signals:
 
@@ -22,13 +26,13 @@ protected:
     void wheelEvent(QWheelEvent *event);
 
 private:
-    void paint();
+    void rotateArrow(const ArrowType& arrowType);
+    void redraw();
 
 private:
-    QGraphicsRectItem* m_borderRect;
     QGraphicsItem *m_svgClock;
-    QGraphicsItem *m_arrow;
     QTimer* m_timer;
+    QHash<ArrowType, QGraphicsItem*> m_arrows;
 };
 
 #endif // CLOCKVIEW_H
