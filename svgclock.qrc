@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>files/clock.svg</file>
+        <file>files/bubbles.svg</file>
+        <file>files/cubic.svg</file>
+        <file>files/spheres.svg</file>
+        <file>files/arrow.svg</file>
+    </qresource>
+</RCC>
