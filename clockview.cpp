@@ -43,6 +43,7 @@ void ClockView::openClock(const QFile &file)
     if (m_svgClock != nullptr)
     {
         s->removeItem(m_svgClock);
+        delete m_svgClock;
     }
     m_svgClock = new QGraphicsSvgItem(file.fileName());
     m_svgClock->setZValue(0);
@@ -67,6 +68,7 @@ void ClockView::openArrow(ClockView::ArrowType arrowType, const QFile &file)
     if (m_arrows.contains(arrowType))
     {
         scene()->removeItem(m_arrows[arrowType]);
+        delete m_arrows[arrowType];
     }
     m_arrows.insert(arrowType, arrow);
     scene()->addItem(arrow);
