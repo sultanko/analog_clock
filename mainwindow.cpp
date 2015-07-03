@@ -25,7 +25,8 @@ void MainWindow::setClocks()
     m_clockView->openArrow(ClockView::ArrowType::Hour, QFile(hourArrowFilename));
     m_clockView->openArrow(ClockView::ArrowType::Minute, QFile(minuteArrowFilename));
     m_clockView->openArrow(ClockView::ArrowType::Second, QFile(secondArrowFilename));
-    resize(m_clockView->sizeHint() + QSize(80, 80 + menuBar()->height()));
+    m_clockView->setSceneRect(m_clockView->sceneRect().adjusted(-10, -10, 10, 10));
+    resize(m_clockView->sizeHint() + QSize(0, 0 + menuBar()->height()));
 }
 
 MainWindow::~MainWindow()

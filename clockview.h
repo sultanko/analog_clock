@@ -24,7 +24,6 @@ public slots:
 
 protected:
     void paintEvent(QPaintEvent* event);
-    void wheelEvent(QWheelEvent *event);
 
 private:
     void rotateArrow(const ArrowType& arrowType);
