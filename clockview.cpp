@@ -106,8 +106,8 @@ void ClockView::rotateArrow(const ClockView::ArrowType &arrowType)
     // Using rotate matrix for it
     qreal radRotation = qDegreesToRadians(rotationAngle);
     QTransform rotateMatrix(qCos(radRotation), qSin(radRotation), -qSin(radRotation), qCos(radRotation), 0, 0);
-    QPoint shift = rotateMatrix.map(QPoint(arrow->boundingRect().width() / 2.0, arrow->boundingRect().height()));
-    const QRectF boundingRect = m_svgClock->sceneBoundingRect();
+    QPointF shift = rotateMatrix.map(QPointF(arrow->boundingRect().width() / 2.0, arrow->boundingRect().height()));
+    const QRectF boundingRect = m_svgClock->boundingRect();
     arrow->setPos(boundingRect.center().x() - shift.x(), boundingRect.center().y() - shift.y());
     arrow->setRotation(rotationAngle);
 }
